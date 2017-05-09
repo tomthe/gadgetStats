@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Activity-View</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <h3>Import Database</h3>
+
+  <ion-list>
+
+  <ion-item>
+    <ion-label stacked>Gadgetbidge database export location</ion-label>
+    <ion-input type="text" [(ngModel)]="dbpath"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <button (click)="copyDB()">copyDB</button>
+  </ion-item>
+  <ion-item>
+    <button (click)="readDB()">readDB</button>
+  </ion-item>
+
+</ion-list>
+<p>{{testresult1}}</p>
+<p>{{testresult2}}</p>
+
+</ion-content>
