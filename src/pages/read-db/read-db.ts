@@ -40,19 +40,20 @@ export class ReadDB {
     let sqltext = `
 select SUM(STEPS) as daysteps, datetime(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
 from MI_BAND_ACTIVITY_SAMPLE
-where (timestamp > strftime('%s','now','-' || 71 ||' days'))
+where (timestamp > strftime('%s','now','-' || 88 ||' days'))
 group by timestamp/(3600*24)`;
       db.executeSql(sqltext, {}).then((result) => {
 
         console.log('gab-readDB - executed! results are here', JSON.stringify(result));
+
         this.testresult1 = JSON.stringify(result);
         this.testresult2 = '|';
         for (var row of result.rows.items) {
-          console.log(row); //of: items of the array; in: indexes of the array
+          console.log("row: ", row); //of: items of the array; in: indexes of the array
           //this.testresult2 += row.datum + ' : ' + row.daysteps + ' || '
         }
 
-        for(let x = 0; x < result.rows.length; x++) {
+        for(let x = 0; x < result.rows.items.length; x++) {
             console.log("Daysteps: " + result.rows.item(x).daysteps +
                 ", datum: " + result.rows.item(x).acctNo);
             this.testresult2 += "Daysteps: " + result.rows.item(x).daysteps + ", datum: " + result.rows.item(x).datum;
@@ -67,6 +68,41 @@ group by timestamp/(3600*24)`;
         this.dberror(err);
     });
   }
+
+  read3(){
+    let sqltext = `
+select SUM(STEPS) as daysteps, datetime(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
+from MI_BAND_ACTIVITY_SAMPLE
+where (timestamp > strftime('%s','now','-' || 88 ||' days'))
+group by timestamp/(3600*24)`;
+    this.read2(sqltext);
+  }
+
+  read2(sqltext){
+    let rowCount='rc:';
+    this.db.transaction((transaction) => {
+      transaction.executeSql(sqltext, [], (tx, results) => {
+        let len = results.rows.length, i;
+        rowCount+=(len);
+        for (let i = 0; i < len; i++){
+          console.log('item i:', results.rows.item(i));
+          this.testresult1 += "\n | " + results.rows.item(i).datum + " - " + results.rows.item(i).daysteps + " ; ";
+//          $("#TableData").append("<tr><td>"+results.rows.item(i).id+"</td><td>"+results.rows.item(i).title+"</td><td>"+results.rows.item(i).desc+"</td></tr>");
+        }
+       for (let i = 0; i < len; i++){
+          console.log('item i:', results.rows.item(i)[0]);
+          this.testresult1 += "\n | " + results.rows.item(i)[0]+ " - " + results.rows.item(i).daysteps + " ; ";
+//          $("#TableData").append("<tr><td>"+results.rows.item(i).id+"</td><td>"+results.rows.item(i).title+"</td><td>"+results.rows.item(i).desc+"</td></tr>");
+        }
+      }, null);
+    });
+
+
+
+  }
+
+
+
 
   readDBandgiveBackTable(sqlText:string){
     //input: complete SQL
