@@ -13,7 +13,7 @@ declare var cordova:any;
   templateUrl: 'home.html'
 })
 export class HomePage {
-  dbpath = "/storage/emulated/0/Android/data/nodomain.freeyourgadget.gadgetbridge/files/Gadgetbridge";
+  dbpath = "Android/data/nodomain.freeyourgadget.gadgetbridge/files/Gadgetbridge";
     
   testresult1 = '..';
   testresult2 = '..';
@@ -24,6 +24,7 @@ export class HomePage {
   }
 
   copyDB(){
+    //deprecated!
     this.testresult1 += '| copyDB |'
     console.log('gab- copyDB1');
     let dbname='Gadgetbridge';
@@ -40,28 +41,74 @@ export class HomePage {
     console.log('gab- copyDB2- after...');
   }
 
-  copydbcheck(){
+  copyDBcheck(){
     //https://www.bountysource.com/issues/22433637-setting-path-of-db
 
     this.file.checkDir(this.file.applicationStorageDirectory, "databases")
-        .then(function (success) {
+        .then(success=> {
             this.copyDB2(); // see the function definition above
-        }, function (error) {
+        }).catch( err => {
             this.file.createDir(this.file.applicationStorageDirectory, "databases", false)
-                .then(function (success) {
+                .then((success) => {
                     this.copyDB2(); // see the function definition above
-                }, function (error) {
-                    // error
+                }).catch((err) => {
+                    alert("errrrrror in createDir"); // error
                 });
         });
   }
 
 
   copyDB2(){
-    
+    this.file.checkFile(this.file.externalRootDirectory, this.dbpath)
+        .then((success) => {
+            this.file.copyFile(this.file.externalRootDirectory, this.dbpath, this.file.applicationStorageDirectory +"/databases/", "Gadgetbridge")
+                .then((success) => {
+                    // success
+                    alert("YAAAA!!!");
+                }).catch((error) => {
+                  alert("NEEEEEEIN!!!");
+                    //error
+                });
+        }).catch((error) => {
+            alert("neee...");
+            //error
+        });
   }
 
+  readExternalDB(){
+    console.log('gab-readDBexternal!');
+    this.testresult1 += '| readDB external|'
+    // OPTION B: Create a new instance of SQLite
 
+    let path = this.dbpath;
+
+    this.sqlite.create({name:path, location:'default'}).then((db)=> {
+      this.db = db;
+      console.log('gab-readDBext! - 2 ');
+      
+    let sqltext = `
+select SUM(STEPS) as daysteps, datetime(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
+from MI_BAND_ACTIVITY_SAMPLE
+where (timestamp > strftime('%s','now','-' || 78 ||' days'))
+group by timestamp/(3600*24)`;
+      db.executeSql(sqltext, {}).then((result) => {
+
+        console.log('gab-readDB - executed! results are here', JSON.stringify(result));
+        this.testresult1 = JSON.stringify(result);
+        this.testresult2 = '|';
+        for (var row of result.rows) {
+          console.log(row); //of: items of the array; in: indexes of the array
+          //this.testresult2 += row.datum + ' : ' + row.daysteps + ' || '
+        }
+      }, (err) => {
+        console.error('Unable to execute sql: ', err);
+        this.dberror(err);
+      });
+    }, (err) => {
+      console.error('Unable to open database: ', err);
+        this.dberror(err);
+    });
+  }
 
   success(){
     //this.testresult1 += '| success! |';
