@@ -1,3 +1,4 @@
+import { ReadDB } from './../pages/read-db/read-db';
 import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -22,6 +23,7 @@ export class MyApp {
     // used for an example of ngFor and navigation
     this.pages = [
       { title: 'Home', component: HomePage },
+      { title: 'DB view', component: ReadDB},
       { title: 'List', component: ListPage }
     ];
 

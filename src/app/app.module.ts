@@ -1,4 +1,6 @@
+import { ReadDB } from './../pages/read-db/read-db';
 import { SQLite } from '@ionic-native/sqlite';
+import { Toast } from '@ionic-native/toast';
 import { File } from '@ionic-native/file';
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
@@ -15,7 +17,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   declarations: [
     MyApp,
     HomePage,
-    ListPage
+    ListPage,
+    ReadDB
   ],
   imports: [
     BrowserModule,
@@ -25,13 +28,15 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   entryComponents: [
     MyApp,
     HomePage,
-    ListPage
+    ListPage,
+    ReadDB
   ],
   providers: [
     StatusBar,
     SplashScreen,
     SQLite,
     File,
+    Toast,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
