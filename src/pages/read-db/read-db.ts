@@ -4,6 +4,8 @@ import { SQLite } from '@ionic-native/sqlite';
 import { Toast } from '@ionic-native/toast';
 import { File } from '@ionic-native/file';
 
+import { AngularEchartsModule } from 'angular2-echarts';
+declare var echarts: any;
 /**
  * Generated class for the ReadDB page.
  *
@@ -131,6 +133,65 @@ group by timestamp/(3600*24)`;
 
   }
 
+
+
+  chartOption = {
+    title: {
+      text: 'chart-test'
+    },
+    tooltip : {
+      trigger: 'axis'
+    },
+    legend: {
+      data:['Montag','Dienstag','Mittwoch','Thursday','Friday','Saturday','Sunday']
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {}
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis : [
+      {
+        type : 'category',
+        boundaryGap : false,
+        data : ['low','middle','high']
+      }
+    ],
+    yAxis : [
+      {
+        type : 'value'
+      }
+    ],
+    series : [
+      {
+        name:'einse',
+        type:'line',
+        stack: 'jey',
+        areaStyle: {normal: {}},
+        data:[120, 132, 101, 134, 90, 230, 210]
+      },
+      {
+        name:'zweise',
+        type:'line',
+        stack: 'jey',
+        areaStyle: {normal: {}},
+        data:[120, 232, 51, 134, 90, 230, 210]
+      },
+      {
+        name:'dreise',
+        type:'line',
+        stack: 'jey',
+        areaStyle: {normal: {}},
+        data:[120, 132, 101, 134, 90, 230, 210]
+      }      
+    ]
+  }
 
 
   success(){
