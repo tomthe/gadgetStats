@@ -15,13 +15,25 @@
 
 <ion-content padding>
 
-  <button (click)="readDB()">readDB</button>
-  <button (click)="read3()">readDB3</button>
+  <button ion-button (click)="readDB()">readDB</button>
+  <button ion-button (click)="read3()">readDB3</button>
+  <button ion-button (click)="showSteptsPerDay()">showSteptsPerDay</button>
   
 
   <p>{{testresult1}}</p>
   <p>{{testresult2}}</p>
+  <ion-list>
+    <ion-item>
+      <ion-label>Date start</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" [(ngModel)]="dateStart"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label>Date end</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" [(ngModel)]="dateEnd"></ion-datetime>
+    </ion-item>
+
+  </ion-list>
 
   <div echarts [options]="chartOption" class="demo-chart"></div>
-  
+
 </ion-content>
