@@ -120,10 +120,14 @@ group by timestamp/(3600*24);`
     console.log('range: ', this.dateStart, this.dateEnd, mixedData[0][0]);
     let days = moment(this.dateEnd).diff(moment(this.dateStart),'days');
     if(days<0){days= -days;}
-    let cellSizeScale = (1800 / days);
+    let cellSizeScale = (3800 / days);
     console.log('CellSizeScale: ', cellSizeScale, cellSizeScale*4000/8000, days);
 
     let chartOption = {
+    tooltip: {
+        position: 'top'
+    },
+
       calendar: [{
           top: 'middle',
           left: 'center',
@@ -139,17 +143,7 @@ group by timestamp/(3600*24);`
           left: '670',
           top: 'center'
       },
-      series: [{
-          type: 'scatter',
-          coordinateSystem: 'calendar',
-          data: mixedData,
-          symbolSize: function(val){return cellSizeScale * Math.sqrt(val[1])/60;},
-          itemStyle: {
-              normal: {
-                  color: '#ddb926'
-              }
-          }
-      },
+      series: [
       {
           type: 'heatmap',
           coordinateSystem: 'calendar',
