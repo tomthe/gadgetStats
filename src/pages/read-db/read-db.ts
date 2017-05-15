@@ -132,7 +132,7 @@ group by timestamp/(3600*24);`
           top: 'middle',
           left: 'center',
           orient: 'vertical',
-          cellSize: ['auto', cellSizeScale],
+          cellSize: ['auto','auto'],
           range: [this.dateStart, this.dateEnd]
       }],
       visualMap: {
@@ -215,6 +215,15 @@ group by timestamp/(3600*24);`
     };
     this.openChart(chartOption);
   }
+
+
+////////////
+
+  computeAndShowChartWeekHourly(){
+    //steps per hour for the last few days
+    //like this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=heatmap-cartesian
+  }
+
 
   setCahrt1() {
 
