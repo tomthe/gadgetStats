@@ -1,3 +1,4 @@
+import { Chart } from './../chart/chart';
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { SQLite } from '@ionic-native/sqlite';
@@ -21,15 +22,16 @@ export class ReadDB {
   db;
   chartOption = {};
 
-  testresult1 = '..';
-  testresult2 = '..';
-
   dateStart = '2017-02-01';
   dateEnd = '2017-03-01';
+
+  chartType = 'calendar';
   
 
   constructor(private file: File, public navCtrl: NavController, private sqlite: SQLite,private toast: Toast) {
-    this.setCahrt1();
+    this.dateEnd = moment().format('YYYY-MM-DD');
+    this.dateStart = moment().subtract(21,'days').format('YYYY-MM-DD');
+    this.loadDB();
   }
 
   ionViewDidLoad() {
@@ -37,80 +39,20 @@ export class ReadDB {
   }
 
 
-  readDB(){
-    console.log('gab-readDB!');
-    this.testresult1 += '| readDB |'
-    // OPTION B: Create a new instance of SQLite
+  loadDB(){
+    console.log('loadDB!');
     this.sqlite.create({name:'Gadgetbridge', location:'default'}).then((db)=> {
       this.db = db;
-      console.log('gab-readDB! - 2 ');
-      
-    let sqltext = `
-select SUM(STEPS) as daysteps, datetime(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
-from MI_BAND_ACTIVITY_SAMPLE
-where (timestamp > strftime('%s','now','-' || 88 ||' days'))
-group by timestamp/(3600*24)`;
-      db.executeSql(sqltext, {}).then((result) => {
-
-        console.log('gab-readDB - executed! results are here', JSON.stringify(result));
-
-        this.testresult1 = JSON.stringify(result);
-        this.testresult2 = '|';
-        for (var row of result.rows.items) {
-          console.log("row: ", row); //of: items of the array; in: indexes of the array
-          //this.testresult2 += row.datum + ' : ' + row.daysteps + ' || '
-        }
-
-        for(let x = 0; x < result.rows.items.length; x++) {
-            console.log("Daysteps: " + result.rows.item(x).daysteps +
-                ", datum: " + result.rows.item(x).acctNo);
-            this.testresult2 += "Daysteps: " + result.rows.item(x).daysteps + ", datum: " + result.rows.item(x).datum;
-        }
-
-      }, (err) => {
-        console.error('Unable to execute sql: ', err);
-        this.dberror(err);
-      });
+      console.log('db loaded ');
+      this.toast.show('Database opened successfully!', '2200', 'bottom').subscribe(
+          toast => {
+            console.log(toast);
+          });
     }, (err) => {
       console.error('Unable to open database: ', err);
         this.dberror(err);
     });
   }
-
-  read3(){
-    let sqltext = `
-select SUM(STEPS) as daysteps, datetime(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
-from MI_BAND_ACTIVITY_SAMPLE
-where (timestamp > strftime('%s','now','-' || 88 ||' days'))
-group by timestamp/(3600*24)`;
-    this.read2(sqltext);
-  }
-
-  read2(sqltext){
-    let rowCount='rc:';
-    this.db.transaction((transaction) => {
-      transaction.executeSql(sqltext, [], (tx, results) => {
-        let len = results.rows.length;
-        rowCount+=(len);
-        for (let i = 0; i < len; i++){
-          console.log('item i:', results.rows.item(i));
-          this.testresult1 += "\n | " + results.rows.item(i).datum + " - " + results.rows.item(i).daysteps + " ; ";
-//          $("#TableData").append("<tr><td>"+results.rows.item(i).id+"</td><td>"+results.rows.item(i).title+"</td><td>"+results.rows.item(i).desc+"</td></tr>");
-        }
-       for (let i = 0; i < len; i++){
-          console.log('item i:', results.rows.item(i)[0]);
-          this.testresult1 += "\n | " + results.rows.item(i)[0]+ " - " + results.rows.item(i).daysteps + " ; ";
-//          $("#TableData").append("<tr><td>"+results.rows.item(i).id+"</td><td>"+results.rows.item(i).title+"</td><td>"+results.rows.item(i).desc+"</td></tr>");
-        }
-      }, null);
-    });
-
-
-
-  }
-
-
-
 
   readDBandgiveBackTable(sqlText:string, sqlParameters, columns=['value1']){
     //input: complete SQL
@@ -121,10 +63,10 @@ group by timestamp/(3600*24)`;
       console.log('gab-readDB - executed! results are here', JSON.stringify(result));
 
       for(let x = 0; x < result.rows.length; x++) {
-          console.log("row: ", result.rows.item(x));
+          //console.log("row: ", result.rows.item(x));
           let row = [];
           for(let col of columns){
-            console.log(col, columns);
+            //console.log(col, columns);
             row.push(result.rows.item(x)[col]);
           }
           data.push(row);//result.rows.item(x)
@@ -137,39 +79,105 @@ group by timestamp/(3600*24)`;
 
   }
 
-  showSteptsPerDay(){
-    let sqlText = `select SUM(STEPS) as daysteps, datetime(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
-from MI_BAND_ACTIVITY_SAMPLE
-where (timestamp between strftime('%s','now','-:start days') and strftime('%s','now','-:end days'))
-group by timestamp/(3600*24);`
+  openChart(chartOpt){
+    this.navCtrl.push(Chart,{'chartOption':chartOpt})
+  }
 
-    let startDays = moment().diff(moment(this.dateStart),'days');
-    let endDays = moment().diff(moment(this.dateEnd),'days');
+  showStepsPerDay(){
+
+    let startDays = moment().diff(moment(this.dateStart),'days').toString();
+    let endDays = moment().diff(moment(this.dateEnd),'days').toString();
     console.log(startDays, endDays);
 
-    let parameters = [startDays.toString(),endDays.toString(), '22'];
-    let parameters2 = {'start':startDays.toString(),'end':endDays.toString()};
+    let sqlText = `select SUM(STEPS) as daysteps, date(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
+from MI_BAND_ACTIVITY_SAMPLE
+where (timestamp between strftime('%s','now','-` + startDays + ` days') and strftime('%s','now','-` + endDays + ` days'))
+group by timestamp/(3600*24);`
+
+    let parameters = {'start':startDays.toString(),'end':endDays.toString()};
     let columns = ['datum','daysteps'];
 
-    let data = this.readDBandgiveBackTable(sqlText, parameters2, columns).then(res=>{
-      console.log('results:')
-      console.log(res)
-      let seriesData1 = res.map(x=> x[1]);
-      let seriesxAxis= res.map(x=> x[0]);
-      console.log(seriesData1)
-      console.log(seriesxAxis)
-      this.showSimpleChart1(seriesxAxis,seriesData1);
+    let data = this.readDBandgiveBackTable(sqlText, parameters, columns).then(res=>{
+      //console.log('results:')
+      //console.log(res)
+      if(this.chartType=='bar'){
+        let seriesData1 = res.map(x=> x[1]);
+        let seriesxAxis= res.map(x=> x[0]);
+        console.log(seriesData1)
+        console.log(seriesxAxis)
+        this.showSimpleChart1(seriesxAxis,seriesData1);
+      } else {
+
+        this.showCalenderChart1(res);
+      }
     });
   }
 
+
+  showCalenderChart1(mixedData){
+
+    console.log('show calendar-graph!', mixedData);
+    console.log('range: ', this.dateStart, this.dateEnd, mixedData[0][0]);
+    let days = moment(this.dateEnd).diff(moment(this.dateStart),'days');
+    if(days<0){days= -days;}
+    let cellSizeScale = (1800 / days);
+    console.log('CellSizeScale: ', cellSizeScale, cellSizeScale*4000/8000, days);
+
+    let chartOption = {
+      calendar: [{
+          top: 'middle',
+          left: 'center',
+          orient: 'vertical',
+          cellSize: ['auto', cellSizeScale],
+          range: [this.dateStart, this.dateEnd]
+      }],
+      visualMap: {
+          min: 0,
+          max: 15000,
+          calculable: true,
+          orient: 'vertical',
+          left: '670',
+          top: 'center'
+      },
+      series: [{
+          type: 'scatter',
+          coordinateSystem: 'calendar',
+          data: mixedData,
+          symbolSize: function(val){return cellSizeScale * Math.sqrt(val[1])/60;},
+          itemStyle: {
+              normal: {
+                  color: '#ddb926'
+              }
+          }
+      },
+      {
+          type: 'heatmap',
+          coordinateSystem: 'calendar',
+          data: mixedData,
+          symbolSize: function(val){return cellSizeScale * Math.sqrt(val[1])/60;},
+      }]
+    };
+    this.openChart(chartOption);
+  }
+
+
+
   showSimpleChart1(seriesxAxis,seriesData1){
     
-    this.chartOption = {
+    let chartOption = {
       title: {
         text: 'Test Chart'
       },
       tooltip : {
         trigger: 'axis'
+      },
+      toolbox: {
+          show : true,
+          feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            magicType : {show: true, type: ['line', 'bar']}
+          }
       },
       dataZoom: {
           show: true,
@@ -200,94 +208,34 @@ group by timestamp/(3600*24);`
       series : [
         {
           name:'Steps per day',
-          type:'line',
+          type:'bar',
           stack: 'jey',
-          areaStyle: {normal: {}},
-          data:seriesData1
-        }
+          data:seriesData1,
+          markLine : {
+              data : [
+                  {type : 'average', name: 'Average'}
+              ]
+          }
+        },
       ]
     };
-
+    this.openChart(chartOption);
   }
 
   setCahrt1() {
 
     this.chartOption = {
-      title: {
-        text: 'Test Chart'
-      },
-      tooltip : {
-        trigger: 'axis'
-      },
-      dataZoom: {
-          show: true,
-          start : 30,
-          end : 70
-      },
-      legend: {
-        data:['einse','zweise','dreise','vierse']
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis : [
-        {
-          type : 'category',
-          boundaryGap : false,
-        data:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-        }
-      ],
-      yAxis : [
-        {
-          type : 'value'
-        }
-      ],
-      series : [
-        {
-          name:'einse',
-          type:'line',
-          stack: 'jey',
-          areaStyle: {normal: {}},
-          data:[10, 32, 41, 54, 66, 77, 88]
-        },
-        {
-          name:'zweise',
-          type:'line',
-          stack: 'jey',
-          areaStyle: {normal: {}},
-          data:[130, 110, 111, 80, 70, 50, 20]
-        },
-        {
-          name:'dreise',
-          type:'line',
-          stack: 'zwo',
-          areaStyle: {normal: {}},
-          data:[5, 30, 50, 66, 44, 20, 2]
-        },
-        {
-          name:'vierse',
-          type:'line',
-          stack: 'zwo',
-          areaStyle: {normal: {}},
-          data:[15,15,15,15,15,15,30]
-        }      
-      ]
     };
 
   }
 
 
   success(){
-    //this.testresult1 += '| success! |';
     console.log('gab- success 4!!');
     alert('yo!');
   }
 
   dberror(e){
-    //this.testresult1 += '| dberror! |';
     console.log('gab- error 5!!',e);
     alert('och nö!');
     alert(JSON.stringify(e));

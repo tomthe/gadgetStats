@@ -1,3 +1,4 @@
+import { Chart } from './../pages/chart/chart';
 import { ReadDB } from './../pages/read-db/read-db';
 import { SQLite } from '@ionic-native/sqlite';
 import { Toast } from '@ionic-native/toast';
@@ -17,6 +18,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 @NgModule({
   declarations: [
     MyApp,
+    Chart,
     HomePage,
     ListPage,
     ReadDB
@@ -29,6 +31,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
+    Chart,
     HomePage,
     ListPage,
     ReadDB
