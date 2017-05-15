@@ -222,6 +222,85 @@ group by timestamp/(3600*24);`
   computeAndShowChartWeekHourly(){
     //steps per hour for the last few days
     //like this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=heatmap-cartesian
+
+
+    //let startDays = moment().diff(moment(this.dateStart),'days').toString();
+    let endDays = moment().diff(moment(this.dateEnd),'days').toString();
+    let startDays = Number(endDays) + 14;
+    console.log(startDays, endDays);
+
+    let sqlText = `select SUM(STEPS) as hourSteps, round(strftime('%J',ROUND(AVG(timestamp)), 'unixepoch') - strftime('%J','now','-` + startDays + ` days')) as datum, 
+    strftime('%H',ROUND(AVG(timestamp)), 'unixepoch') as time,timestamp
+from MI_BAND_ACTIVITY_SAMPLE
+where (timestamp between strftime('%s','now','-` + startDays + ` days') and strftime('%s','now','-` + endDays + ` days'))
+group by timestamp/(3600);`
+
+    let parameters = {'start':startDays.toString(),'end':endDays.toString()};
+    let columns = ['time','datum','hourSteps'];
+
+    let data = this.readDBandgiveBackTable(sqlText, parameters, columns).then(res=>{
+      console.log('Results week hourly: ',res);
+      if(true){
+
+        data = res.map(x=> [Number(x[0]), Number(x[1]), x[2] || '-'])
+        let seriesData1 = res.map(x=> x[1]);
+        let seriesxAxis= res.map(x=> x[0]);
+        console.log(seriesData1)
+        console.log(seriesxAxis)
+        let days = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14'];
+        let hours = ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
+        let option = {
+          tooltip: {
+              position: 'top'
+          },
+          animation: false,
+          grid: {
+              height: '50%',
+              y: '10%'
+          },
+          xAxis: {
+              type: 'category',
+              data: hours,
+              splitArea: {
+                  show: true
+              }
+          },
+          yAxis: {
+              type: 'category',
+              data: days,
+              splitArea: {
+                  show: true
+              }
+          },
+          visualMap: {
+              min: 0,
+              max: 1000,
+              calculable: true,
+              orient: 'horizontal',
+              left: 'center',
+              bottom: '15%'
+          },
+          series: [{
+              name: 'Steps per Hour',
+              type: 'heatmap',
+              data: res,
+              label: {
+                  normal: {
+                      show: false
+                  }
+              },
+              itemStyle: {
+                  emphasis: {
+                      shadowBlur: 10,
+                      shadowColor: 'rgba(0, 0, 0, 0.5)'
+                  }
+              }
+          }]
+        };
+        this.openChart(option);
+      }
+    });
+
   }
 
 
