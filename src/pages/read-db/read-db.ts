@@ -222,11 +222,12 @@ group by timestamp/(3600*24);`
   computeAndShowChartWeekHourly(){
     //steps per hour for the last few days
     //like this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=heatmap-cartesian
+    // https://ecomfe.github.io/echarts/doc/doc-en.html#SeriesHeatmap
 
-
+    let ndays = 16;
     //let startDays = moment().diff(moment(this.dateStart),'days').toString();
     let endDays = moment().diff(moment(this.dateEnd),'days').toString();
-    let startDays = Number(endDays) + 14;
+    let startDays = Number(endDays) + ndays;
     console.log(startDays, endDays);
 
     let sqlText = `select SUM(STEPS) as hourSteps, round(strftime('%J',ROUND(AVG(timestamp)), 'unixepoch') - strftime('%J','now','-` + startDays + ` days')) as datum, 
@@ -248,15 +249,20 @@ group by timestamp/(3600);`
         console.log(seriesData1)
         console.log(seriesxAxis)
         let days = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14'];
-        let hours = ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
+        days = [];
+        for(let i=0;i<ndays;i++){
+          let day = moment(this.dateEnd).subtract(ndays,'days').add(i,'days').format('dd, MM-DD');
+          days.push(day);
+        }
+        let hours = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
         let option = {
           tooltip: {
               position: 'top'
           },
           animation: false,
           grid: {
-              height: '50%',
-              y: '10%'
+              height: '79%',
+              y: '4%'
           },
           xAxis: {
               type: 'category',
@@ -274,11 +280,15 @@ group by timestamp/(3600);`
           },
           visualMap: {
               min: 0,
-              max: 1000,
+              max: 3000,
               calculable: true,
               orient: 'horizontal',
               left: 'center',
-              bottom: '15%'
+              bottom: '3%',
+              opacity: 0.2,
+              inRange: {
+                color: ['#748db1', '#9bc9d9', '#e0d3d8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+              }
           },
           series: [{
               name: 'Steps per Hour',
@@ -300,6 +310,43 @@ group by timestamp/(3600);`
         this.openChart(option);
       }
     });
+
+  }
+
+
+  computeAndShowChartRestingHeartRate(){
+
+    let sqlText = `
+select HEART_RATE, datetime(timestamp, 'unixepoch') as datum, timestamp
+from MI_BAND_ACTIVITY_SAMPLE
+where HEART_RATE between 20 and 200
+and date(datetime(timestamp+3600*6, 'unixepoch'))=date('now', '-98  days')
+order by HEART_RATE
+LIMIT 1
+OFFSET 20`;
+
+    let ndays = 16;
+    //let startDays = moment().diff(moment(this.dateStart),'days').toString();
+    let endDays = moment().diff(moment(this.dateEnd),'days');
+    let startDays = Number(endDays) + ndays;
+    console.log(startDays, endDays);
+
+
+    let columns = ['time','datum','hourSteps'];
+    
+    for(let i=startDays;i>endDays;i--){
+
+    }
+
+    let data = this.readDBandgiveBackTable(sqlText, [], columns).then(res=>{
+      console.log('Results week hourly: ',res);
+      if(true){
+
+        data = res.map(x=> [Number(x[0]), Number(x[1]), x[2] || '-'])
+
+      }
+    });
+    //todo....!
 
   }
 
