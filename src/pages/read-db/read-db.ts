@@ -284,7 +284,7 @@ group by timestamp/(3600);`
               bottom: '3%',
               opacity: 0.2,
               inRange: {
-                color: ['#748db1', '#9bc9d9', '#e0d3d8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+                color:  ['#e0d3d8', '#aac', '#f46d43', '#d73027', '#a50026']
               }
           },
           series: [{
