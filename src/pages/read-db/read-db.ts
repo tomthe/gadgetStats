@@ -254,7 +254,7 @@ group by timestamp/(3600);`
           let day = moment(this.dateEnd).subtract(ndays,'days').add(i,'days').format('dd, MM-DD');
           days.push(day);
         }
-        let hours = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
+        let hours = ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
         let option = {
           tooltip: {
               position: 'top'
@@ -333,7 +333,6 @@ OFFSET 20`;
 
 
     let columns = ['time','datum','hourSteps'];
-    
     for(let i=startDays;i>endDays;i--){
 
     }

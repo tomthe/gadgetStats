@@ -1,50 +1,25 @@
 
+# GadgetStats
 
+Companion app for [Gadgetbridge](https://github.com/Freeyourgadget/Gadgetbridge/)
 
+Imports the SQLite database and shows some visualisations of your activity data.
 
-## achtung
+## Chart Types
 
-### copy database optional...deprecated! (wäre aber mal interessant, um die datenbank nicht jedesmal kopieren zu müsen!)
-damit das läuft, folgenden code in ... hinzufügen:
+Implemented:
+* Steps per day as bar-chart 
+* Steps per day as calendar-heatmap
+* hourly activity for the past 3 weeks as heatmap
 
-One can also just edit the java souce code to fit their needs. In src/android/io/sqlc/SQLitePlugin.java ca. on line 203 there's this code:
-also plugins/corvdova-sqlite-storage/src.....
-von der seite: https://www.bountysource.com/issues/22433637-setting-path-of-db
+Planned:
+* Resting heart rate
+* Single day statistics: ...
+* ....
 
-```
-    /**
-     * Open a database from external directory. von tomthe
-     * Author: Tom
-     * @param dbName   The name of the database file
-     */
-    private SQLiteAndroidDatabase openDatabaseExternal(String dbname, CallbackContext cbc, boolean old_impl) throws Exception {
-        try {
-            // ASSUMPTION: no db (connection/handle) is already stored in the map
-            // [should be true according to the code in DBRunner.run()]
+## Development
 
-            File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
-            File dbfile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dbname);
+Developed with [Ionic](https://ionicframework.com)
 
-            if (!dbfile.exists()) {
-                dbfile.getParentFile().mkdirs();
-            }
+Charting Library [ECharts](https://ecomfe.github.io/echarts/doc/example-en.html)
 
-            Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
-
-            SQLiteAndroidDatabase mydb = old_impl ? new SQLiteAndroidDatabase() : new SQLiteConnectorDatabase();
-            mydb.open(dbfile);
-
-            if (cbc != null) // XXX Android locking/closing BUG workaround
-                cbc.success();
-
-            return mydb;
-        } catch (Exception e) {
-            if (cbc != null) // XXX Android locking/closing BUG workaround
-                cbc.error("can't open database " + e);
-            throw e;
-        }
-    }
-```
-und am anfang:
-
-import android.os.Environment
