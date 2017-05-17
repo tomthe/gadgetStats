@@ -16,10 +16,11 @@
     <ion-label stacked>Gadgetbidge database export location</ion-label>
     <ion-input type="text" [(ngModel)]="dbpath"></ion-input>
   </ion-item>
-
   <ion-item>
-    <button (click)="copyDBcheck()">copyDBcheck</button>
+    <p>{{dbpath}}</p>
   </ion-item>
+
+  <button ion-item (click)="copyDBcheck()">copy database and start</button>
 
 </ion-list>
 

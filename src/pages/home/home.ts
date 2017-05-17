@@ -29,7 +29,8 @@ export class HomePage {
                 .then((success) => {
                     this.copyDB(); // see the function definition above
                 }).catch((err) => {
-                    alert("errrrrror in createDir"); // error
+                    console.log('Error creating directory')
+                    this.toast.show('Error creating directory', '1800', 'bottom') // error
                 });
         });
   }
@@ -47,11 +48,11 @@ export class HomePage {
                       });
                     this.navCtrl.push(ReadDB);
                 }).catch((error) => {
-                  alert("NEEEEEEIN!!!");
+                  alert("Error copying Database!!");
                     //error
                 });
         }).catch((error) => {
-            alert("neee...");
+            alert("Error copying Database - Database doesn't exist!");
             //error
         });
   }
