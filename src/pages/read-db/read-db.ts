@@ -24,10 +24,7 @@ export class ReadDB {
 
   dateStart = '2017-02-01';
   dateEnd = '2017-03-01';
-
-  chartType = 'calendar';
   
-
   constructor(private file: File, public navCtrl: NavController, private sqlite: SQLite,private toast: Toast) {
     this.dateEnd = moment().format('YYYY-MM-DD');
     this.dateStart = moment().subtract(21,'days').format('YYYY-MM-DD');
@@ -83,7 +80,7 @@ export class ReadDB {
     this.navCtrl.push(Chart,{'chartOption':chartOpt})
   }
 
-  showStepsPerDay(){
+  showStepsPerDay(chartType='calendar'){
 
     let startDays = moment().diff(moment(this.dateStart),'days').toString();
     let endDays = moment().diff(moment(this.dateEnd),'days').toString();
@@ -100,7 +97,7 @@ group by timestamp/(3600*24);`
     let data = this.readDBandgiveBackTable(sqlText, parameters, columns).then(res=>{
       //console.log('results:')
       //console.log(res)
-      if(this.chartType=='bar'){
+      if(chartType=='bar'){
         let seriesData1 = res.map(x=> x[1]);
         let seriesxAxis= res.map(x=> x[0]);
         console.log(seriesData1)
