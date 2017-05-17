@@ -110,6 +110,36 @@ group by timestamp/(3600*24);`
     });
   }
 
+showStepsPerWeek(chartType='bar'){
+
+    let startDays = moment().diff(moment(this.dateStart),'days').toString();
+    let endDays = moment().diff(moment(this.dateEnd),'days').toString();
+    console.log(startDays, endDays);
+
+    let sqlText = `select SUM(STEPS) as weeksteps, date(ROUND(AVG(timestamp)), 'unixepoch') as datum, timestamp
+from MI_BAND_ACTIVITY_SAMPLE
+where (timestamp between strftime('%s','now','-` + startDays + ` days') and strftime('%s','now','-` + endDays + ` days'))
+group by timestamp/(3600*24*7);`
+
+    let parameters = {'start':startDays.toString(),'end':endDays.toString()};
+    let columns = ['datum','weeksteps'];
+
+    let data = this.readDBandgiveBackTable(sqlText, parameters, columns).then(res=>{
+      //console.log('results:')
+      //console.log(res)
+      if(chartType=='bar'){
+        let seriesData1 = res.map(x=> x[1]);
+        let seriesxAxis= res.map(x=> x[0]);
+        console.log(seriesData1)
+        console.log(seriesxAxis)
+        this.showSimpleChart1(seriesxAxis,seriesData1,'Steps per week');
+      } else {
+
+        this.showCalenderChart1(res);
+      }
+    });
+  }
+
 
   showCalenderChart1(mixedData){
 
@@ -153,11 +183,11 @@ group by timestamp/(3600*24);`
 
 
 
-  showSimpleChart1(seriesxAxis,seriesData1){
+  showSimpleChart1(seriesxAxis,seriesData1,legend='Steps per day'){
     
     let chartOption = {
       title: {
-        text: 'Test Chart'
+        text: legend
       },
       tooltip : {
         trigger: 'axis'
@@ -176,7 +206,7 @@ group by timestamp/(3600*24);`
           end : 100
       },
       legend: {
-        data:['Steps per day']
+        data:[legend]
       },
       grid: {
         left: '3%',
