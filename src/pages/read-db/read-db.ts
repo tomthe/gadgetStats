@@ -353,7 +353,7 @@ order by HEART_RATE
 LIMIT 1
 OFFSET 30`;
 
-    let ndays = 16;
+    let ndays = this.ndays;
     //let startDays = moment().diff(moment(this.dateStart),'days').toString();
     let endDays = moment().diff(moment(this.dateEnd),'days');
     let startDays = Number(endDays) + ndays;
@@ -365,17 +365,21 @@ OFFSET 30`;
     let hrdata = [];
     let datumdata = [];
     for(let i=startDays;i>endDays;i--){
-      let sqlTextTemp = sqlText.replace('$$$',i.toString());
-      console.log(i, 'i, sql: ',sqlText);
-      let data =  await this.readDBandgiveBackTable(sqlTextTemp, [], columns);
-      data=data[0]; //because we only get one row here.
-      console.log('Results week hourly: ',data);
-      rows.push(data);
-      hrdata.push(data[0]);
-      datumdata.push(data[1]);
-          //data = res.map(x=> [Number(x[0]), Number(x[1]), x[2] || '-'])
+      try{
+        let sqlTextTemp = sqlText.replace('$$$',i.toString());
+        //console.log(i, 'i, sql: ',sqlTextTemp);
+        let data =  await this.readDBandgiveBackTable(sqlTextTemp, [], columns);
+        data=data[0]; //because we only get one row here.
+        //console.log('Results week hourly: ',data);
+        rows.push(data);
+        hrdata.push(data[0]);
+        datumdata.push(data[1]);
+            //data = res.map(x=> [Number(x[0]), Number(x[1]), x[2] || '-'])
+      } catch(err) {
+        console.log('error in for-loop',err)
+      }
     }
-    console.log('rows: ', rows, hrdata,datumdata);
+    //console.log('rows: ', rows, hrdata,datumdata);
     this.showSimpleChart1(datumdata,hrdata,'resting heart rate');
   }
 
