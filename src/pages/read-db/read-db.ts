@@ -21,6 +21,7 @@ export class ReadDB {
 
   db;
   chartOption = {};
+  ndays=16;
 
   dateStart = '2017-02-01';
   dateEnd = '2017-03-01';
@@ -228,7 +229,7 @@ group by timestamp/(3600*24*7);`
       ],
       series : [
         {
-          name:'Steps per day',
+          name:legend,
           type:'bar',
           stack: 'jey',
           data:seriesData1,
@@ -251,7 +252,7 @@ group by timestamp/(3600*24*7);`
     //like this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=heatmap-cartesian
     // https://ecomfe.github.io/echarts/doc/doc-en.html#SeriesHeatmap
 
-    let ndays = 16;
+    let ndays = this.ndays;
     //let startDays = moment().diff(moment(this.dateStart),'days').toString();
     let endDays = moment().diff(moment(this.dateEnd),'days').toString();
     let startDays = Number(endDays) + ndays;
@@ -341,16 +342,16 @@ group by timestamp/(3600);`
   }
 
 
-  computeAndShowChartRestingHeartRate(){
+  async computeAndShowChartRestingHeartRate(){
 
     let sqlText = `
 select HEART_RATE, datetime(timestamp, 'unixepoch') as datum, timestamp
 from MI_BAND_ACTIVITY_SAMPLE
 where HEART_RATE between 20 and 200
-and date(datetime(timestamp+3600*6, 'unixepoch'))=date('now', '-98  days')
+and date(datetime(timestamp+3600*6, 'unixepoch'))=date('now', '-$$$  days')
 order by HEART_RATE
 LIMIT 1
-OFFSET 20`;
+OFFSET 30`;
 
     let ndays = 16;
     //let startDays = moment().diff(moment(this.dateStart),'days').toString();
@@ -359,21 +360,23 @@ OFFSET 20`;
     console.log(startDays, endDays);
 
 
-    let columns = ['time','datum','hourSteps'];
+    let columns = ['HEART_RATE','datum'];
+    let rows = [];
+    let hrdata = [];
+    let datumdata = [];
     for(let i=startDays;i>endDays;i--){
-
+      let sqlTextTemp = sqlText.replace('$$$',i.toString());
+      console.log(i, 'i, sql: ',sqlText);
+      let data =  await this.readDBandgiveBackTable(sqlTextTemp, [], columns);
+      data=data[0]; //because we only get one row here.
+      console.log('Results week hourly: ',data);
+      rows.push(data);
+      hrdata.push(data[0]);
+      datumdata.push(data[1]);
+          //data = res.map(x=> [Number(x[0]), Number(x[1]), x[2] || '-'])
     }
-
-    let data = this.readDBandgiveBackTable(sqlText, [], columns).then(res=>{
-      console.log('Results week hourly: ',res);
-      if(true){
-
-        data = res.map(x=> [Number(x[0]), Number(x[1]), x[2] || '-'])
-
-      }
-    });
-    //todo....!
-
+    console.log('rows: ', rows, hrdata,datumdata);
+    this.showSimpleChart1(datumdata,hrdata,'resting heart rate');
   }
 
 
