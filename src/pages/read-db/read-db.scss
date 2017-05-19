@@ -2,4 +2,28 @@ page-read-db {
     .demo-chart {
     height: 400px;
     }
+
+@-webkit-keyframes slideInSmooth {
+  0% {
+    -webkit-transform: translate3d(0,150%,0);
+  }
+ 
+  70% {
+    -webkit-transform: translate3d(0,0,25%);
+  }
+  100% {
+    -webkit-transform: translate3d(0,0,0);
+  }
+}
+
+.slide-in{
+   -webkit-animation: slideInSmooth ease-in 1; 
+  animation: slideInSmooth ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 350ms;
+  animation-duration: 350ms;
+}
+
+
 }

@@ -13,7 +13,7 @@
 </ion-header>
 
 
-<ion-content padding>
+<ion-content padding class="slide-in">
 
   <ion-list>
     <ion-item>
@@ -24,10 +24,17 @@
       <ion-label>Date end</ion-label>
       <ion-datetime displayFormat="YYYY-MM-DD" [(ngModel)]="dateEnd"></ion-datetime>
     </ion-item>
+    <ion-item>
+      <ion-range min="0" max="365" [(ngModel)]="ndays" color="secondary" pin="true" >
+        <ion-label range-left>0</ion-label>
+        <ion-label range-right>365</ion-label>
+      </ion-range>
+    </ion-item>
   <button ion-item (click)="showStepsPerDay('bar')">Steps per day - bar chart</button>
   <button ion-item (click)="showStepsPerDay('calendar')">Steps per day - calendar heatmap</button>
   <button ion-item (click)="showStepsPerWeek('bar')">Steps per week - bar chart</button>
   <button ion-item (click)="computeAndShowChartWeekHourly()">2 weeks hourly heatmap</button>
+  <button ion-button (click)="computeAndShowChartRestingHeartRate()">restingheartrate</button>
 
   </ion-list>
 
