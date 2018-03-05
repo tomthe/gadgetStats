@@ -21,9 +21,9 @@ Implemented:
 * Steps per day as bar-chart 
 * Steps per day as calendar-heatmap
 * hourly activity for the past 3 weeks as heatmap
+* Resting heart rate
 
 Planned:
-* Resting heart rate
 * Single day statistics: ...
 * ....
 
